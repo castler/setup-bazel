@@ -3,6 +3,7 @@ import path from 'path'
 import * as cache from '@actions/cache'
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
+import * as github from '@actions/github'
 import config from './config.js'
 import { getFolderSize } from './util.js'
 
@@ -69,6 +70,11 @@ async function saveCache(cacheConfig) {
     return
   }
 
+  if (cacheConfig.customKey) {
+    await saveCacheWithCustomKey(cacheConfig)
+    return
+  }
+
   const cacheHit = core.getState(`${cacheConfig.name}-cache-hit`)
   core.debug(`${cacheConfig.name}-cache-hit is ${cacheHit}`)
   if (cacheHit === 'true') {
@@ -92,6 +98,35 @@ async function saveCache(cacheConfig) {
     core.warning(error.stack)
   } finally {
     core.endGroup()
+  }
+}
+
+async function saveCacheWithCustomKey(cacheConfig) {
+  const name = cacheConfig.name
+  const key = `${config.baseCacheKey}-${name}-${cacheConfig.customKey}`
+
+  try {
+    core.startGroup(`Save cache for ${name}`)
+    await deleteCacheByKey(key)
+    core.debug(`Attempting to save ${cacheConfig.paths} cache to ${key}`)
+    await cache.saveCache(cacheConfig.paths, key)
+    core.info('Successfully saved cache')
+  } catch (error) {
+    core.warning(error.stack)
+  } finally {
+    core.endGroup()
+  }
+}
+
+async function deleteCacheByKey(key) {
+  try {
+    const token = process.env.GITHUB_TOKEN || process.env.BAZELISK_GITHUB_TOKEN
+    const octokit = github.getOctokit(token)
+    const { owner, repo } = github.context.repo
+    await octokit.rest.actions.deleteActionsCacheByKey({ owner, repo, key })
+    core.info(`Deleted old cache with key ${key}`)
+  } catch (error) {
+    core.debug(`No old cache to delete or delete failed: ${error.message}`)
   }
 }
 

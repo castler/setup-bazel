@@ -51,6 +51,7 @@ const bazelrc = core.getMultilineInput('bazelrc')
 
 const diskCacheConfig = core.getInput('disk-cache')
 const diskCacheEnabled = diskCacheConfig !== 'false'
+const diskCacheKey = core.getInput('disk-cache-key')
 let diskCacheName = 'disk'
 if (diskCacheEnabled) {
   // Before Bazel 6.3, providing --disk_cache to common is an error,
@@ -155,7 +156,8 @@ export default {
       `${moduleRoot}/**/BUILD`
     ],
     name: diskCacheName,
-    paths: [bazelDisk]
+    paths: [bazelDisk],
+    ...(diskCacheKey && { customKey: diskCacheKey })
   },
   externalCache,
   paths: {

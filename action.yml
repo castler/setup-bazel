@@ -25,6 +25,10 @@ inputs:
     description: Cache actions outputs based on BUILD
     required: false
     default: "false"
+  disk-cache-key:
+    description: Custom cache key for the disk cache. When provided, uses timestamp-based invalidation instead of BUILD file hashing.
+    required: false
+    default: ""
   external-cache:
     description: Cache external 10MB+ repositories based on MODULE.bazel/WORKSPACE
     required: false
