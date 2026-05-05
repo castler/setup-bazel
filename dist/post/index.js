@@ -100581,14 +100581,25 @@ async function saveCacheWithCustomKey(cacheConfig) {
   const name = cacheConfig.name
   const key = `${config.baseCacheKey}-${name}-${cacheConfig.customKey}`
 
+  startGroup(`Save cache for ${name}`)
   try {
-    startGroup(`Save cache for ${name}`)
-    await deleteCacheByKey(key)
     core_debug(`Attempting to save ${cacheConfig.paths} cache to ${key}`)
     await cache_saveCache(cacheConfig.paths, key)
     info('Successfully saved cache')
   } catch (error) {
-    warning(error.stack)
+    if (error.name !== 'ReserveCacheError') {
+      warning(error.stack)
+    } else {
+      // Key already exists from a prior run; delete it and re-save with fresh content.
+      info('Cache already exists, replacing with fresh content')
+      await deleteCacheByKey(key)
+      try {
+        await cache_saveCache(cacheConfig.paths, key)
+        info('Successfully saved cache')
+      } catch (retryError) {
+        warning(retryError.stack)
+      }
+    }
   } finally {
     endGroup()
   }
