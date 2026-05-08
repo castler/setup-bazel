@@ -48,4 +48,47 @@ function lstatSync(path, opts) {
   }
 }
 
-export { getFolderSize }
+async function deleteOldCaches(token, prefix) {
+  const { owner, repo } = getRepo()
+  const baseUrl = `https://api.github.com/repos/${owner}/${repo}/actions/caches`
+  const headers = {
+    'Accept': 'application/vnd.github+json',
+    'Authorization': `Bearer ${token}`,
+    'X-GitHub-Api-Version': '2022-11-28'
+  }
+
+  // List caches matching the prefix
+  const listUrl = `${baseUrl}?key=${encodeURIComponent(prefix)}`
+  const response = await fetch(listUrl, { headers })
+
+  if (!response.ok) {
+    throw new Error(`Failed to list caches: ${response.status} ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  const caches = data.actions_caches || []
+
+  if (caches.length === 0) {
+    return 0
+  }
+
+  // Delete each matching cache
+  let deleted = 0
+  for (const c of caches) {
+    const deleteUrl = `${baseUrl}/${c.id}`
+    const deleteResponse = await fetch(deleteUrl, { method: 'DELETE', headers })
+    if (deleteResponse.ok) {
+      deleted++
+    }
+  }
+
+  return deleted
+}
+
+function getRepo() {
+  const repository = process.env.GITHUB_REPOSITORY || ''
+  const [owner, repo] = repository.split('/')
+  return { owner, repo }
+}
+
+export { getFolderSize, deleteOldCaches }
