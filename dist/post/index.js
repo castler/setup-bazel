@@ -100478,7 +100478,8 @@ function lstatSync(path, opts) {
 
 async function deleteOldCaches(token, prefix) {
   const { owner, repo } = getRepo()
-  const baseUrl = `https://api.github.com/repos/${owner}/${repo}/actions/caches`
+  const apiUrl = process.env.GITHUB_API_URL || 'https://api.github.com'
+  const baseUrl = `${apiUrl}/repos/${owner}/${repo}/actions/caches`
   const headers = {
     'Accept': 'application/vnd.github+json',
     'Authorization': `Bearer ${token}`,
@@ -100490,7 +100491,7 @@ async function deleteOldCaches(token, prefix) {
   const response = await fetch(listUrl, { headers })
 
   if (!response.ok) {
-    throw new Error(`Failed to list caches: ${response.status} ${response.statusText}`)
+    throw new Error(`Failed to list caches (${listUrl}): ${response.status} ${response.statusText}`)
   }
 
   const data = await response.json()
@@ -100507,6 +100508,9 @@ async function deleteOldCaches(token, prefix) {
     const deleteResponse = await fetch(deleteUrl, { method: 'DELETE', headers })
     if (deleteResponse.ok) {
       deleted++
+    } else {
+      const body = await deleteResponse.text().catch(() => '')
+      throw new Error(`Failed to delete cache ${c.id} (key: ${c.key}): ${deleteResponse.status} ${deleteResponse.statusText} ${body}`)
     }
   }
 
