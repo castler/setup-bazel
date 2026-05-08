@@ -14,7 +14,7 @@ inputs:
     required: false
     default: ""
   cache-optimized:
-    description: Use timestamp-based cache keys with automatic old cache cleanup. Applies to disk and repository caches. Requires 'actions: write' permission on the GITHUB_TOKEN.
+    description: "Use timestamp-based cache keys with automatic old cache cleanup. Applies to disk and repository caches. Requires 'actions: write' permission on the GITHUB_TOKEN."
     required: false
     default: "false"
   cache-save:
