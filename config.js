@@ -177,7 +177,7 @@ export default {
     enabled: repositoryCacheEnabled,
     files: repositoryCacheFiles,
     name: 'repository',
-    optimized: cacheOptimized,
+    optimized: false,
     paths: [bazelRepository]
   },
 }
