@@ -100420,7 +100420,7 @@ saveState('cache-optimized', cacheOptimized.toString())
     enabled: repositoryCacheEnabled,
     files: repositoryCacheFiles,
     name: 'repository',
-    optimized: cacheOptimized,
+    optimized: false,
     paths: [bazelRepository]
   },
 });
