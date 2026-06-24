@@ -100309,7 +100309,11 @@ if (diskCacheEnabled) {
 const repositoryCacheConfig = yaml_dist.parse(getInput('repository-cache'))
 const repositoryCacheEnabled = repositoryCacheConfig !== false
 let repositoryCacheFiles = [
+  `${moduleRoot}/.bazelrc`,
+  `${moduleRoot}/.bazelversion`,
   `${moduleRoot}/MODULE.bazel`,
+  `${moduleRoot}/MODULE.bazel.lock`,
+  `${moduleRoot}/**/*.bzl`,
   `${moduleRoot}/WORKSPACE.bazel`,
   `${moduleRoot}/WORKSPACE.bzlmod`,
   `${moduleRoot}/WORKSPACE`
