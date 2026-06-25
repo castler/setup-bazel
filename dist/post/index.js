@@ -100250,6 +100250,7 @@ function getOctokit(token, options, ...additionalPlugins) {
 const bazeliskVersion = getInput('bazelisk-version')
 const cacheOptimized = getBooleanInput('cache-optimized')
 const cacheSave = getBooleanInput('cache-save')
+const skipCacheRestore = getBooleanInput('skip-cache-restore')
 const cacheVersion = getInput('cache-version')
 const moduleRoot = getInput('module-root')
 
@@ -100391,6 +100392,7 @@ saveState('cache-optimized', cacheOptimized.toString())
 /* harmony default export */ const config = ({
   baseCacheKey,
   cacheSave,
+  skipCacheRestore,
   bazeliskCache: {
     enabled: getBooleanInput('bazelisk-cache'),
     files: [`${moduleRoot}/.bazelversion`],

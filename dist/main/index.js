@@ -101048,6 +101048,7 @@ var yaml_dist = __nccwpck_require__(8815);
 const bazeliskVersion = getInput('bazelisk-version')
 const cacheOptimized = getBooleanInput('cache-optimized')
 const cacheSave = getBooleanInput('cache-save')
+const skipCacheRestore = getBooleanInput('skip-cache-restore')
 const cacheVersion = getInput('cache-version')
 const moduleRoot = getInput('module-root')
 
@@ -101189,6 +101190,7 @@ saveState('cache-optimized', cacheOptimized.toString())
 /* harmony default export */ const config = ({
   baseCacheKey,
   cacheSave,
+  skipCacheRestore,
   bazeliskCache: {
     enabled: getBooleanInput('bazelisk-cache'),
     files: [`${moduleRoot}/.bazelversion`],
@@ -101254,6 +101256,12 @@ async function setupBazel() {
   endGroup()
 
   await setupBazelisk()
+
+  if (config.skipCacheRestore) {
+    info('Skipping cache restore (skip-cache-restore: true)')
+    return
+  }
+
   await index_restoreCache(config.bazeliskCache)
   await index_restoreCache(config.diskCache)
   await index_restoreCache(config.repositoryCache)
