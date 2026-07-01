@@ -7,6 +7,7 @@ import * as github from '@actions/github'
 const bazeliskVersion = core.getInput('bazelisk-version')
 const cacheOptimized = core.getBooleanInput('cache-optimized')
 const cacheSave = core.getBooleanInput('cache-save')
+const skipCacheRestore = core.getBooleanInput('skip-cache-restore')
 const cacheVersion = core.getInput('cache-version')
 const moduleRoot = core.getInput('module-root')
 
@@ -67,6 +68,7 @@ const repositoryCacheConfig = yaml.parse(core.getInput('repository-cache'))
 const repositoryCacheEnabled = repositoryCacheConfig !== false
 let repositoryCacheFiles = [
   `${moduleRoot}/MODULE.bazel`,
+  `${moduleRoot}/MODULE.bazel.lock`,
   `${moduleRoot}/WORKSPACE.bazel`,
   `${moduleRoot}/WORKSPACE.bzlmod`,
   `${moduleRoot}/WORKSPACE`
@@ -144,6 +146,7 @@ core.saveState('cache-optimized', cacheOptimized.toString())
 export default {
   baseCacheKey,
   cacheSave,
+  skipCacheRestore,
   bazeliskCache: {
     enabled: core.getBooleanInput('bazelisk-cache'),
     files: [`${moduleRoot}/.bazelversion`],
@@ -177,7 +180,7 @@ export default {
     enabled: repositoryCacheEnabled,
     files: repositoryCacheFiles,
     name: 'repository',
-    optimized: cacheOptimized,
+    optimized: false,
     paths: [bazelRepository]
   },
 }
